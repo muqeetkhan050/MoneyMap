@@ -1,0 +1,104 @@
+const express = require('express');
+const router = express.Router();
+const auth = require('../middleware/auth');
+const Transaction = require('../models/Transaction');
+
+// @route   GET /api/analytics/overview
+// @desc    Get spending overview
+router.get('/overview', auth, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.user.id });
+
+    // Calculate totals
+    const totalIncome = transactions
+      .filter(t => t.type === 'credit')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const totalExpense = transactions
+      .filter(t => t.type === 'debit')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    // Category-wise spending
+    const categorySpending = {};
+    transactions
+      .filter(t => t.type === 'debit')
+      .forEach(t => {
+        if (!categorySpending[t.category]) {
+          categorySpending[t.category] = 0;
+        }
+        categorySpending[t.category] += t.amount;
+      });
+
+    // Monthly spending
+    const monthlyData = {};
+    transactions.forEach(t => {
+      const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      if (!monthlyData[month]) {
+        monthlyData[month] = { income: 0, expense: 0 };
+      }
+      if (t.type === 'credit') {
+        monthlyData[month].income += t.amount;
+      } else {
+        monthlyData[month].expense += t.amount;
+      }
+    });
+
+    res.json({
+      totalIncome,
+      totalExpense,
+      balance: totalIncome - totalExpense,
+      categorySpending,
+      monthlyData,
+      transactionCount: transactions.length
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/analytics/transactions
+// @desc    Get all transactions
+router.get('/transactions', auth, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ userId: req.user.id })
+      .sort({ date: -1 });
+    
+    res.json(transactions);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/analytics/categories
+// @desc    Get spending by category
+router.get('/categories', auth, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ 
+      userId: req.user.id,
+      type: 'debit'
+    });
+
+    const categories = {};
+    transactions.forEach(t => {
+      if (!categories[t.category]) {
+        categories[t.category] = {
+          total: 0,
+          count: 0,
+          transactions: []
+        };
+      }
+      categories[t.category].total += t.amount;
+      categories[t.category].count += 1;
+      categories[t.category].transactions.push(t);
+    });
+
+    res.json(categories);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+module.exports = router;
