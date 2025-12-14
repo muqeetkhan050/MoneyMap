@@ -44,6 +44,8 @@ app.use(express.json());
 
 // ===== Routes =====
 app.use("/api/auth", require("./routes/auth"));
+app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/upload', require('./routes/upload'));
 
 // ===== MongoDB Connection =====
 mongoose.connect(process.env.MONGO_URI)
