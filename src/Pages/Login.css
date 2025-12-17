@@ -1,4 +1,4 @@
-/* Add to existing Login.css */
+/* Add to existing Login.css
 
 .error-message {
   background: #fee;
@@ -24,4 +24,149 @@
 
 .signup-link a:hover {
   text-decoration: underline;
+} */
+
+
+/* Page background */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Login card */
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* Title */
+.login-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  color: #1f2933;
+}
+
+/* Subtitle */
+.login-subtitle {
+  margin-top: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Error message */
+.error-message {
+  background: #fdecea;
+  color: #b91c1c;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #f5c2c0;
+}
+
+/* Form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Form group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+/* Inputs */
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Button */
+.login-button {
+  margin-top: 10px;
+  padding: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.login-button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.login-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.login-button:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+/* Signup link */
+.signup-link {
+  margin-top: 22px;
+  text-align: center;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.signup-link a {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 24px;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
 }

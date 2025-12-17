@@ -34,7 +34,7 @@ const app = express();
 // ===== CORS =====
 // Allow requests from frontend (React)
 app.use(cors({
-  origin: "http://localhost:3002", // your React app
+  origin: "http://localhost:3000", // your React app
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));

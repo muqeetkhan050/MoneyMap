@@ -113,3 +113,4 @@ const categorizeTransaction = (description) => {
 };
 
 module.exports = { parseXLSX };
+
