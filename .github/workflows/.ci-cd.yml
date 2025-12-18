@@ -1,0 +1,46 @@
+name: CI/CD Pipeline
+
+# Trigger pipeline on push to main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 3️⃣ Install backend dependencies
+      - name: Install backend dependencies
+        run: npm install
+
+      # 4️⃣ Build frontend
+      - name: Build React frontend
+        working-directory: ./client  # Change if your React folder is named differently
+        run: |
+          npm install
+          npm run build
+
+      # 5️⃣ Deploy to server via SSH
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/your-project-folder
+            git pull origin main
+            npm install
+            pm2 restart all
