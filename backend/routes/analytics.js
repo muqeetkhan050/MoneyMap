@@ -6,11 +6,75 @@ const Transaction = require('../models/Transaction');
 
 // @route   GET /api/analytics/overview
 // @desc    Get spending overview
+// router.get('/overview', auth, async (req, res) => {
+//   try {
+//     const transactions = await Transaction.find({ userId: req.user.id });
+
+//     // Calculate totals
+//     const totalIncome = transactions
+//       .filter(t => t.type === 'credit')
+//       .reduce((sum, t) => sum + t.amount, 0);
+
+//     const totalExpense = transactions
+//       .filter(t => t.type === 'debit')
+//       .reduce((sum, t) => sum + t.amount, 0);
+
+//     // Category-wise spending
+//     const categorySpending = {};
+//     transactions
+//       .filter(t => t.type === 'debit')
+//       .forEach(t => {
+//         if (!categorySpending[t.category]) {
+//           categorySpending[t.category] = 0;
+//         }
+//         categorySpending[t.category] += t.amount;
+//       });
+
+//     // Monthly spending
+//     const monthlyData = {};
+//     transactions.forEach(t => {
+//       const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+//       if (!monthlyData[month]) {
+//         monthlyData[month] = { income: 0, expense: 0 };
+//       }
+//       if (t.type === 'credit') {
+//         monthlyData[month].income += t.amount;
+//       } else {
+//         monthlyData[month].expense += t.amount;
+//       }
+//     });
+
+//     res.json({
+//       totalIncome,
+//       totalExpense,
+//       balance: totalIncome - totalExpense,
+//       categorySpending,
+//       monthlyData,
+//       transactionCount: transactions.length
+//     });
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 router.get('/overview', auth, async (req, res) => {
   try {
     const transactions = await Transaction.find({ userId: req.user.id });
 
-    // Calculate totals
+    if (!transactions || transactions.length === 0) {
+      return res.json({
+        totalIncome: 0,
+        totalExpense: 0,
+        balance: 0,
+        categorySpending: {},
+        categoryPercentages: {},
+        monthlyData: {},
+        transactionCount: 0,
+        comparison: {}
+      });
+    }
+
+    // 1️⃣ Total income & expense
     const totalIncome = transactions
       .filter(t => t.type === 'credit')
       .reduce((sum, t) => sum + t.amount, 0);
@@ -19,41 +83,52 @@ router.get('/overview', auth, async (req, res) => {
       .filter(t => t.type === 'debit')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    // Category-wise spending
+    const balance = totalIncome - totalExpense;
+
+    // 2️⃣ Category-wise spending
     const categorySpending = {};
     transactions
       .filter(t => t.type === 'debit')
       .forEach(t => {
-        if (!categorySpending[t.category]) {
-          categorySpending[t.category] = 0;
-        }
+        if (!categorySpending[t.category]) categorySpending[t.category] = 0;
         categorySpending[t.category] += t.amount;
       });
 
-    // Monthly spending
+    // Category percentages
+    const categoryPercentages = {};
+    Object.keys(categorySpending).forEach(cat => {
+      categoryPercentages[cat] = ((categorySpending[cat] / totalExpense) * 100).toFixed(2);
+    });
+
+    // 3️⃣ Monthly income & expense
     const monthlyData = {};
     transactions.forEach(t => {
       const month = new Date(t.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      if (!monthlyData[month]) {
-        monthlyData[month] = { income: 0, expense: 0 };
-      }
-      if (t.type === 'credit') {
-        monthlyData[month].income += t.amount;
-      } else {
-        monthlyData[month].expense += t.amount;
-      }
+      if (!monthlyData[month]) monthlyData[month] = { income: 0, expense: 0 };
+      if (t.type === 'credit') monthlyData[month].income += t.amount;
+      else monthlyData[month].expense += t.amount;
     });
 
+    // 4️⃣ Comparison: spending vs income
+    const comparison = {
+      spentVsIncomePercent: totalIncome === 0 ? 0 : ((totalExpense / totalIncome) * 100).toFixed(2),
+      remainingIncome: totalIncome - totalExpense
+    };
+
+    // Send structured analytics
     res.json({
       totalIncome,
       totalExpense,
-      balance: totalIncome - totalExpense,
+      balance,
       categorySpending,
+      categoryPercentages,
       monthlyData,
-      transactionCount: transactions.length
+      transactionCount: transactions.length,
+      comparison
     });
+
   } catch (err) {
-    console.error(err.message);
+    console.error('Overview error:', err.message);
     res.status(500).json({ message: 'Server error' });
   }
 });

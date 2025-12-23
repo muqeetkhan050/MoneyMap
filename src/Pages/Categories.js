@@ -1,41 +1,140 @@
+
+
+// import React, { useEffect, useState, useContext } from 'react';
+// import { PieChart, Pie, Tooltip, Cell, Legend } from 'recharts';
+// import { AuthContext } from '../Context/AuthContext';
+// import { getOverview } from '../utils/api';
+
+// const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4567'];
+
+// function Categories() {
+//   const { token } = useContext(AuthContext);
+//   const [categories, setCategories] = useState([]);
+
+//   useEffect(() => {
+//     async function fetchOurCategories() {
+//       try {
+//         const res = await getOverview();
+
+//         // 🔁 Convert object → array
+//         const categoryArray = Object.entries(res.data.categorySpending).map(
+//           ([name, value]) => ({
+//             name,
+//             value,
+//           })
+//         );
+
+//         setCategories(categoryArray);
+//       } catch (err) {
+//         console.error('Error fetching categories:', err);
+//       }
+//     }
+
+//     fetchOurCategories();
+//   }, [token]);
+
+//   if (!categories.length) return <p>Loading categories...</p>;
+
+//   return (
+//     <div>
+//       <h1>Spending by Category</h1>
+
+//       <PieChart width={400} height={400}>
+//         <Pie
+//           data={categories}
+//           dataKey="value"
+//           nameKey="name"
+//           cx="50%"
+//           cy="50%"
+//           outerRadius={120}
+//           label
+//         >
+//           {categories.map((entry, index) => (
+//             <Cell
+//               key={`cell-${index}`}
+//               fill={COLORS[index % COLORS.length]}
+//             />
+//           ))}
+//         </Pie>
+
+//         <Tooltip />
+//         <Legend />
+//       </PieChart>
+//     </div>
+//   );
+// }
+
+// export default Categories;
+
+
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
+import { PieChart, Pie, Tooltip, Cell, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { AuthContext } from '../Context/AuthContext';
-import { PieChart, Pie, Tooltip, Cell, Legend } from 'recharts';
+import { getOverview } from '../utils/api';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF4567'];
 
 function Categories() {
   const { token } = useContext(AuthContext);
+  const [overview, setOverview] = useState(null);
   const [categoryData, setCategoryData] = useState([]);
 
   useEffect(() => {
-    async function fetchCategories() {
+    async function fetchOverview() {
       try {
-        const res = await axios.get('/api/analytics/categories', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await getOverview();
+        setOverview(res.data);
 
-        // Transform for chart
-        const chartData = Object.keys(res.data).map((key) => ({
-          name: key,
-          value: res.data[key].total
-        }));
-
-        setCategoryData(chartData);
+        // Convert categorySpending object to array for pie chart
+        const categoriesArray = Object.entries(res.data.categorySpending || {}).map(
+          ([name, value]) => ({ name, value })
+        );
+        setCategoryData(categoriesArray);
       } catch (err) {
-        console.error('Error fetching categories:', err);
+        console.error('Error fetching overview:', err);
       }
     }
 
-    fetchCategories();
+    fetchOverview();
   }, [token]);
 
-  if (!categoryData.length) return <p>Loading categories...</p>;
+  if (!overview) return <p>Loading overview...</p>;
+
+  const { totalIncome, totalExpense, balance, categoryPercentages, monthlyData, comparison } = overview;
+
+  // Prepare monthly chart data
+  const monthlyChartData = Object.entries(monthlyData || {}).map(([month, data]) => ({
+    month,
+    Income: data.income,
+    Expense: data.expense
+  }));
 
   return (
-    <div>
-      <h1>Spending by Category</h1>
+    <div style={{ padding: '20px' }}>
+      <h1>Financial Overview</h1>
+
+      {/* Overview Cards */}
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '40px' }}>
+        <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '10px' }}>
+          <h3>Total Income</h3>
+          <p>${totalIncome.toFixed(2)}</p>
+        </div>
+        <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '10px' }}>
+          <h3>Total Expense</h3>
+          <p>${totalExpense.toFixed(2)}</p>
+        </div>
+        <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '10px' }}>
+          <h3>Balance</h3>
+          <p>${balance.toFixed(2)}</p>
+        </div>
+        <div style={{ padding: '20px', background: '#f0f0f0', borderRadius: '10px' }}>
+          <h3>Spent vs Income %</h3>
+          <p>{comparison?.spentVsIncomePercent}%</p>
+        </div>
+      </div>
+
+      {/* Category Pie Chart */}
+      <h2>Spending by Category</h2>
       <PieChart width={400} height={400}>
         <Pie
           data={categoryData}
@@ -53,6 +152,20 @@ function Categories() {
         <Tooltip />
         <Legend />
       </PieChart>
+
+      {/* Monthly Income vs Expense Bar Chart */}
+      <h2 style={{ marginTop: '40px' }}>Monthly Income vs Expense</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={monthlyChartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="month" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="Income" fill="#00C49F" />
+          <Bar dataKey="Expense" fill="#FF8042" />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
