@@ -40,5 +40,8 @@ export const uploadBankStatement = (formData) => {
 export const getOverview = () => api.get('/analytics/overview');
 export const getTransactions = () => api.get('/analytics/transactions');
 export const getCategories = () => api.get('/analytics/categories');
+export const getBudget = () => api.get('/mybudget/budget');
+
+
 
 export default api;

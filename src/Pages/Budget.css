@@ -1,0 +1,72 @@
+.budget-page {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+}
+
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budget-cards {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.budget-card {
+  flex: 1;
+  padding: 20px;
+  margin: 0 10px;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+}
+
+.budget-card.total {
+  background-color: #4facfe;
+}
+
+.budget-card.spent {
+  background-color: #ef4444;
+}
+
+.budget-card.remaining {
+  background-color: #10b981;
+}
+
+.budget-progress {
+  margin-top: 30px;
+}
+
+.progress-bar-container {
+  background: #e0e0e0;
+  border-radius: 10px;
+  height: 20px;
+  width: 100%;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #4facfe;
+  border-radius: 10px 0 0 10px;
+}
+
+.budget-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.logout-btn {
+  padding: 5px 10px;
+  background-color: #ef4444;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}

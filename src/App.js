@@ -1,5 +1,6 @@
 
 
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './Context/AuthContext';
@@ -26,6 +27,30 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" />;
 }
 
+// Optional redirect component for /budget
+function BudgetRedirect() {
+  const navigate = React.useNavigate();
+  React.useEffect(() => {
+    const fetchAndRedirect = async () => {
+      try {
+        const res = await fetch('/api/budgets'); // or use your getBudgets API
+        const budgets = await res.json();
+        if (budgets.length > 0) {
+          navigate(`/budget/${budgets[0]._id}`);
+        } else {
+          navigate('/dashboard');
+        }
+      } catch (err) {
+        console.error(err);
+        navigate('/dashboard');
+      }
+    };
+    fetchAndRedirect();
+  }, [navigate]);
+
+  return <p>Loading budget...</p>;
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -33,12 +58,22 @@ function App() {
         <Routes>
           {/* Redirect root to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" />} />
+
+          {/* Analytics */}
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/budget" element={<Budget />} /> 
+
+          {/* Budget routes */}
+          <Route path="/budget" element={<Budget/>} />
+ 
+
+          {/* Categories */}
           <Route path='/categories' element={<Categories />} />
           
+          {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+
+          {/* Protected Routes */}
           <Route 
             path="/dashboard" 
             element={
