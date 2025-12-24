@@ -1,0 +1,30 @@
+.analytics-container {
+  padding: 30px;
+  background-color: #f9f9fb;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.analytics-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.chart-card {
+  background: #ffffff;
+  padding: 20px 30px;
+  border-radius: 15px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.loading-text {
+  font-size: 18px;
+  color: #666;
+  text-align: center;
+  margin-top: 100px;
+}
