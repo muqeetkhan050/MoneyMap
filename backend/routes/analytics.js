@@ -6,6 +6,7 @@ const Transaction = require('../models/Transaction');
 
 
 router.get('/overview', auth, async (req, res) => {
+
   try {
     const transactions = await Transaction.find({ userId: req.user.id });
 
@@ -79,6 +80,8 @@ router.get('/overview', auth, async (req, res) => {
     console.error('Overview error:', err.message);
     res.status(500).json({ message: 'Server error' });
   }
+
+
 });
 
 // @route   GET /api/analytics/transactions
